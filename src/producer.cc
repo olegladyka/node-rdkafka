@@ -83,6 +83,9 @@ void Producer::Init(v8::Local<v8::Object> exports) {
    */
 
   Nan::SetPrototypeMethod(tpl, "initTransactions", NodeInitTransactions);
+  Nan::SetPrototypeMethod(tpl, "beginTransaction", NodeBeginTransaction);
+  Nan::SetPrototypeMethod(tpl, "commitTransaction", NodeCommitTransaction);
+  Nan::SetPrototypeMethod(tpl, "abortTransactions", NodeAbortTransaction);
 
     // connect. disconnect. resume. pause. get meta data
   constructor.Reset((tpl->GetFunction(Nan::GetCurrentContext()))
@@ -352,6 +355,60 @@ Baton Producer::InitTransactions(int32_t timeout_ms) {
 
   RdKafka::Producer* producer = dynamic_cast<RdKafka::Producer*>(m_client);
   RdKafka::Error* error = producer->init_transactions(timeout_ms);
+
+  if ( NULL == error) {
+    return Baton(RdKafka::ERR_NO_ERROR);
+  }
+  else {
+    Baton result(error->code());
+    delete error;
+    return result;
+  }
+}
+
+Baton Producer::BeginTransaction() {
+  if (!IsConnected()) {
+    return Baton(RdKafka::ERR__STATE);
+  }
+
+  RdKafka::Producer* producer = dynamic_cast<RdKafka::Producer*>(m_client);
+  RdKafka::Error* error = producer->begin_transaction();
+
+  if ( NULL == error) {
+    return Baton(RdKafka::ERR_NO_ERROR);
+  }
+  else {
+    Baton result(error->code());
+    delete error;
+    return result;
+  }
+}
+
+Baton Producer::CommitTransaction(int32_t timeout_ms) {
+  if (!IsConnected()) {
+    return Baton(RdKafka::ERR__STATE);
+  }
+
+  RdKafka::Producer* producer = dynamic_cast<RdKafka::Producer*>(m_client);
+  RdKafka::Error* error = producer->commit_transaction(timeout_ms);
+
+  if ( NULL == error) {
+    return Baton(RdKafka::ERR_NO_ERROR);
+  }
+  else {
+    Baton result(error->code());
+    delete error;
+    return result;
+  }
+}
+
+Baton Producer::AbortTransaction(int32_t timeout_ms) {
+  if (!IsConnected()) {
+    return Baton(RdKafka::ERR__STATE);
+  }
+
+  RdKafka::Producer* producer = dynamic_cast<RdKafka::Producer*>(m_client);
+  RdKafka::Error* error = producer->abort_transaction(timeout_ms);
 
   if ( NULL == error) {
     return Baton(RdKafka::ERR_NO_ERROR);
@@ -693,6 +750,57 @@ NAN_METHOD(Producer::NodeInitTransactions) {
   }
 
   Baton result = producer->InitTransactions(timeout_ms);
+  info.GetReturnValue().Set(Nan::New<v8::Number>(static_cast<int>(result.err())));
+}
+
+NAN_METHOD(Producer::NodeBeginTransaction) {
+  Nan::HandleScope scope;
+
+  Producer* producer = ObjectWrap::Unwrap<Producer>(info.This());
+
+  if (!producer->IsConnected()) {
+    Nan::ThrowError("Producer is disconnected");
+  }
+
+  Baton result = producer->BeginTransaction();
+  info.GetReturnValue().Set(Nan::New<v8::Number>(static_cast<int>(result.err())));
+}
+
+NAN_METHOD(Producer::NodeCommitTransaction) {
+  Nan::HandleScope scope;
+
+  if (info.Length() != 1) {
+    return Nan::ThrowError("Need to specify a timeout for commit transaction");
+  }
+
+  int timeout_ms = Nan::To<int>(info[0]).FromJust();
+
+  Producer* producer = ObjectWrap::Unwrap<Producer>(info.This());
+
+  if (!producer->IsConnected()) {
+    Nan::ThrowError("Producer is disconnected");
+  }
+
+  Baton result = producer->CommitTransaction(timeout_ms);
+  info.GetReturnValue().Set(Nan::New<v8::Number>(static_cast<int>(result.err())));
+}
+
+NAN_METHOD(Producer::NodeAbortTransaction) {
+  Nan::HandleScope scope;
+
+  if (info.Length() != 1) {
+    return Nan::ThrowError("Need to specify a timeout for abort transaction");
+  }
+
+  int timeout_ms = Nan::To<int>(info[0]).FromJust();
+
+  Producer* producer = ObjectWrap::Unwrap<Producer>(info.This());
+
+  if (!producer->IsConnected()) {
+    Nan::ThrowError("Producer is disconnected");
+  }
+
+  Baton result = producer->AbortTransaction(timeout_ms);
   info.GetReturnValue().Set(Nan::New<v8::Number>(static_cast<int>(result.err())));
 }
 
