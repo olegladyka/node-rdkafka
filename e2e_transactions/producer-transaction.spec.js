@@ -21,7 +21,7 @@ describe('Producer', function() {
       producer = new Kafka.Producer({
         'client.id': 'kafka-test',
         'metadata.broker.list': kafkaBrokerList,
-        'dr_msg_cb': true,
+        'dr_cb': true,
         'debug': 'all',
         'transactional.id': 'noderdkafka_transactions_test',
         'enable.idempotence': true
@@ -39,8 +39,6 @@ describe('Producer', function() {
         t.ifError(err);
         done();
       });
-
-      //eventListener(producer);
     });
 
     afterEach(function(done) {
@@ -64,7 +62,6 @@ describe('Producer', function() {
       var topic = "test";
 
       consumer.on('ready', function(arg) {
-        //consumer.assign([ { offset: 0, partition: 0, topic: 'test' } ]);
         consumer.subscribe([topic]);
 
         //start consuming messages
@@ -88,6 +85,60 @@ describe('Producer', function() {
         if (counter == max) {
           clearInterval(tt);
           done()
+        }
+      });
+
+      consumer.on('event.error', function(err) {
+        console.error('Error from consumer');
+        console.error(err);
+      });
+
+      consumer.connect();
+    });
+
+    it('no message should be delivered if transaction is aborted', function(done) {
+      this.timeout(3000);
+
+      var total = 0;
+      var max = 100;
+      var transactions_timeout_ms = 200;
+
+      var tt = setInterval(function() {
+        producer.poll();
+      }, 200);
+      var topic = "test";
+
+      consumer.on('ready', function(arg) {
+        consumer.subscribe([topic]);
+
+        //start consuming messages
+        consumer.consume();
+
+        producer.initTransactions(transactions_timeout_ms);
+        producer.beginTransaction();
+
+        for (total = 0; total <= max; total++) {
+          producer.produce(topic, null, Buffer.from('message ' + total), null);
+        }
+
+        producer.abortTransaction(transactions_timeout_ms);
+      });
+
+      var received = 0;
+      consumer.on('data', function(m) {
+        received++;
+        consumer.commit(m);
+      });
+
+      var delivery_reports = 0;
+      producer.on('delivery-report', function(err, report) {
+        delivery_reports++;
+        t.notStrictEqual(report, undefined);
+        t.notStrictEqual(err, undefined);
+        if (delivery_reports == max) {
+          clearInterval(tt);
+          t.strictEqual(0, received)
+          done();
         }
       });
 
