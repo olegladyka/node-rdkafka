@@ -85,7 +85,7 @@ void Producer::Init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "initTransactions", NodeInitTransactions);
   Nan::SetPrototypeMethod(tpl, "beginTransaction", NodeBeginTransaction);
   Nan::SetPrototypeMethod(tpl, "commitTransaction", NodeCommitTransaction);
-  Nan::SetPrototypeMethod(tpl, "abortTransactions", NodeAbortTransaction);
+  Nan::SetPrototypeMethod(tpl, "abortTransaction", NodeAbortTransaction);
 
     // connect. disconnect. resume. pause. get meta data
   constructor.Reset((tpl->GetFunction(Nan::GetCurrentContext()))
