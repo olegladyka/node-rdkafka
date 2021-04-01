@@ -6,6 +6,7 @@
   "main": "lib/index.js",
   "scripts": {
     "configure": "node-gyp configure",
+    "prebuild": "git submodule init && git submodule update",
     "build": "node-gyp build",
     "test": "make test",
     "install": "node-gyp rebuild",
