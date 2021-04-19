@@ -356,7 +356,6 @@ Baton rdkafkaErrorToBaton(RdKafka::Error* error) {
     Baton result(error->code(), error->str(), error->is_fatal(),
                  error->is_retriable(), error->txn_requires_abort());
     delete error;
-    Nan::ThrowError(error->str().c_str());
     return result;
   }
 }
