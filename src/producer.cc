@@ -735,7 +735,7 @@ NAN_METHOD(Producer::NodeInitTransactions) {
   }
 
   Baton result = producer->InitTransactions(timeout_ms);
-  info.GetReturnValue().Set(Nan::New<v8::Number>(static_cast<int>(result.err())));
+  info.GetReturnValue().Set(result.ToTxnObject());
 }
 
 NAN_METHOD(Producer::NodeBeginTransaction) {
@@ -748,7 +748,7 @@ NAN_METHOD(Producer::NodeBeginTransaction) {
   }
 
   Baton result = producer->BeginTransaction();
-  info.GetReturnValue().Set(Nan::New<v8::Number>(static_cast<int>(result.err())));
+  info.GetReturnValue().Set(result.ToTxnObject());
 }
 
 NAN_METHOD(Producer::NodeCommitTransaction) {
@@ -767,7 +767,7 @@ NAN_METHOD(Producer::NodeCommitTransaction) {
   }
 
   Baton result = producer->CommitTransaction(timeout_ms);
-  info.GetReturnValue().Set(Nan::New<v8::Number>(static_cast<int>(result.err())));
+  info.GetReturnValue().Set(result.ToTxnObject());
 }
 
 NAN_METHOD(Producer::NodeAbortTransaction) {
@@ -786,7 +786,7 @@ NAN_METHOD(Producer::NodeAbortTransaction) {
   }
 
   Baton result = producer->AbortTransaction(timeout_ms);
-  info.GetReturnValue().Set(Nan::New<v8::Number>(static_cast<int>(result.err())));
+  info.GetReturnValue().Set(result.ToTxnObject());
 }
 
 }  // namespace NodeKafka

@@ -36,6 +36,7 @@ class Baton {
   std::string errstr();
 
   v8::Local<v8::Object> ToObject();
+  v8::Local<v8::Object> ToTxnObject();
 
  private:
   void* m_data;
