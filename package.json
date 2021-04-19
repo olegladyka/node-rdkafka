@@ -1,6 +1,6 @@
 {
-  "name": "node-rdkafka",
-  "version": "v2.10.1",
+  "name": "@santiment-network/node-rdkafka",
+  "version": "v2.10.8",
   "description": "Node.js bindings for librdkafka",
   "librdkafka": "1.6.1",
   "main": "lib/index.js",
