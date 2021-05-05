@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "src/producer.h"
+#include "src/kafka-consumer.h"
 #include "src/workers.h"
 
 namespace NodeKafka {
@@ -404,6 +405,21 @@ Baton Producer::AbortTransaction(int32_t timeout_ms) {
   return rdkafkaErrorToBaton( error);
 }
 
+Baton Producer::SendOffsetsToTransaction(
+  std::vector<RdKafka::TopicPartition*> &offsets,
+  KafkaConsumer* consumer,
+  int32_t timeout_ms) {
+  if (!IsConnected()) {
+    return Baton(RdKafka::ERR__STATE);
+  }
+
+  RdKafka::Producer* producer = dynamic_cast<RdKafka::Producer*>(m_client);
+  RdKafka::ConsumerGroupMetadata* md = consumer->GetConsumerGroupMetadata();
+
+  return rdkafkaErrorToBaton(0);//rdkafkaErrorToBaton( error);
+}
+
+
 /* Node exposed methods */
 
 /**
@@ -787,5 +803,47 @@ NAN_METHOD(Producer::NodeAbortTransaction) {
   Baton result = producer->AbortTransaction(timeout_ms);
   info.GetReturnValue().Set(result.ToTxnObject());
 }
+
+NAN_METHOD(Producer::NodeSendOffsetsToTransaction) {
+  Nan::HandleScope scope;
+  int error_code;
+  std::vector<RdKafka::TopicPartition *> toppars;
+
+  if (info.Length() != 3) {
+    return Nan::ThrowError("Need to specify a params to send offsets to transaction");
+  }
+
+  int timeout_ms = Nan::To<int>(info[2]).FromJust();
+  KafkaConsumer* consumer = ObjectWrap::Unwrap<KafkaConsumer>(info[1].As<v8::Object>());
+
+  Producer* producer = ObjectWrap::Unwrap<Producer>(info.This());
+
+  if (info[0]->IsNull() || info[0]->IsUndefined()) {
+       Nan::ThrowError("Topic partition was not provided");
+    } else if (info[0]->IsArray()) {
+      toppars = Conversion::TopicPartition::FromV8Array(info[0].As<v8::Array>());
+
+    } else if (info[0]->IsObject()) {
+      RdKafka::TopicPartition * toppar = Conversion::TopicPartition::FromV8Object(info[0].As<v8::Object>());
+
+      if (toppar == NULL) {
+        Nan::ThrowError("Invalid topic partition provided");
+        return;
+      }
+      toppars.push_back(toppar);
+      delete toppar;
+    } else {
+      Nan::ThrowError("First parameter must be an object or an array");
+      return;
+    }
+
+    if (!producer->IsConnected()) {
+        Nan::ThrowError("Producer is disconnected");
+    }
+
+    Baton result = producer->SendOffsetsToTransaction(toppars, consumer, timeout_ms);
+    error_code = static_cast<int>(result.err());
+    info.GetReturnValue().Set(Nan::New<v8::Number>(error_code));
+  }
 
 }  // namespace NodeKafka

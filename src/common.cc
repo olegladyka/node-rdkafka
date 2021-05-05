@@ -143,6 +143,7 @@ std::vector<std::string> v8ArrayToStringVector(v8::Local<v8::Array> parameter) {
 }
 
 namespace Conversion {
+
 namespace Topic {
 
 std::vector<std::string> ToStringVector(v8::Local<v8::Array> parameter) {
@@ -402,7 +403,7 @@ v8::Local<v8::Object> ToV8Object(RdKafka::Metadata* metadata) {
   return obj;
 }
 
-}  // namespace Metadata
+} // namespace Metadata
 
 namespace Message {
 
@@ -479,6 +480,14 @@ v8::Local<v8::Object> ToV8Object(RdKafka::Message *message,
 }
 
 }  // namespace Message
+
+namespace ConsumerGroupMetadata {
+  v8::Local<v8::Object> ToV8Object(RdKafka::ConsumerGroupMetadata* metadata){
+    v8::Local<v8::Object> obj = Nan::New<v8::Object>();
+    //Nan::Set(obj, Nan::New("metadata").ToLocalChecked(), metadata);
+    return obj;
+  }
+}
 
 /**
  * @section Admin API models

@@ -116,6 +116,10 @@ v8::Local<v8::Object> ToV8Object(RdKafka::Metadata*);
 
 }  // namespace Metadata
 
+namespace ConsumerGroupMetadata {
+  v8::Local<v8::Object> ToV8Object(RdKafka::ConsumerGroupMetadata*);
+}
+
 namespace Message {
 
 v8::Local<v8::Object> ToV8Object(RdKafka::Message*);

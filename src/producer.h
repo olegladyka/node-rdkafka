@@ -17,6 +17,7 @@
 
 #include "rdkafkacpp.h"
 
+#include "src/kafka-consumer.h"
 #include "src/common.h"
 #include "src/connection.h"
 #include "src/callbacks.h"
@@ -86,6 +87,7 @@ class Producer : public Connection {
   Baton BeginTransaction();
   Baton CommitTransaction(int32_t timeout_ms);
   Baton AbortTransaction(int32_t timeout_ms);
+  Baton SendOffsetsToTransaction(std::vector<RdKafka::TopicPartition*> &offsets, KafkaConsumer* consumer, int32_t timeout_ms);
 
  protected:
   static Nan::Persistent<v8::Function> constructor;
@@ -107,6 +109,7 @@ class Producer : public Connection {
   static NAN_METHOD(NodeBeginTransaction);
   static NAN_METHOD(NodeCommitTransaction);
   static NAN_METHOD(NodeAbortTransaction);
+  static NAN_METHOD(NodeSendOffsetsToTransaction);
 
   Callbacks::Delivery m_dr_cb;
   Callbacks::Partitioner m_partitioner_cb;
