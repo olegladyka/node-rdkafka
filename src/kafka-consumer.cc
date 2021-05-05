@@ -539,6 +539,7 @@ void KafkaConsumer::Init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "commit", NodeCommit);
   Nan::SetPrototypeMethod(tpl, "commitSync", NodeCommitSync);
   Nan::SetPrototypeMethod(tpl, "offsetsStore", NodeOffsetsStore);
+  Nan::SetPrototypeMethod(tpl, "getConsumerGroupMetadata", NodeGetConsumerGroupMetadata);
 
   constructor.Reset((tpl->GetFunction(Nan::GetCurrentContext()))
     .ToLocalChecked());

@@ -88,8 +88,6 @@ class Producer : public Connection {
   Baton CommitTransaction(int32_t timeout_ms);
   Baton AbortTransaction(int32_t timeout_ms);
   Baton SendOffsetsToTransaction(std::vector<RdKafka::TopicPartition*> &offsets, KafkaConsumer* consumer, int32_t timeout_ms);
-  Baton SendOffsetsToTransaction(RdKafka::TopicPartition* &offset, KafkaConsumer* consumer, int32_t timeout_ms);
-  Baton SendOffsetsToTransaction(RdKafka::TopicPartition* &offset, KafkaConsumer* consumer);
 
  protected:
   static Nan::Persistent<v8::Function> constructor;
