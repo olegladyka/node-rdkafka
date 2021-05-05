@@ -844,8 +844,7 @@ NAN_METHOD(Producer::NodeSendOffsetsToTransaction) {
     }
 
     Baton result = producer->SendOffsetsToTransaction(toppars, consumer, timeout_ms);
-    error_code = static_cast<int>(result.err());
-    info.GetReturnValue().Set(Nan::New<v8::Number>(error_code));
+    info.GetReturnValue().Set(result.ToTxnObject());
   }
 
 }  // namespace NodeKafka
