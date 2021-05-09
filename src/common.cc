@@ -481,14 +481,6 @@ v8::Local<v8::Object> ToV8Object(RdKafka::Message *message,
 
 }  // namespace Message
 
-namespace ConsumerGroupMetadata {
-  v8::Local<v8::Object> ToV8Object(RdKafka::ConsumerGroupMetadata* metadata){
-    v8::Local<v8::Object> obj = Nan::New<v8::Object>();
-    //Nan::Set(obj, Nan::New("metadata").ToLocalChecked(), metadata);
-    return obj;
-  }
-}
-
 /**
  * @section Admin API models
  */

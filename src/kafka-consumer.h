@@ -120,8 +120,6 @@ class KafkaConsumer : public Connection {
 
   static NAN_METHOD(NodePause);
   static NAN_METHOD(NodeResume);
-
-  static NAN_METHOD(NodeGetConsumerGroupMetadata);
 };
 
 }  // namespace NodeKafka

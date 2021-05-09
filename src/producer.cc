@@ -415,8 +415,8 @@ Baton Producer::SendOffsetsToTransaction(
   }
 
   RdKafka::Producer* producer = dynamic_cast<RdKafka::Producer*>(m_client);
-  RdKafka::ConsumerGroupMetadata* md = consumer->GetConsumerGroupMetadata();
-  RdKafka::Error* error = producer->send_offsets_to_transaction(offsets, md, timeout_ms);
+  RdKafka::ConsumerGroupMetadata* group_metadata = consumer->GetConsumerGroupMetadata();
+  RdKafka::Error* error = producer->send_offsets_to_transaction(offsets, group_metadata, timeout_ms);
 
   return rdkafkaErrorToBaton( error);
 }
