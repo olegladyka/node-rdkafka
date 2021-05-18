@@ -807,37 +807,27 @@ NAN_METHOD(Producer::NodeAbortTransaction) {
 }
 
 NAN_METHOD(Producer::NodeSendOffsetsToTransaction) {
-  Nan::HandleScope scope;
-  int error_code;
-  std::vector<RdKafka::TopicPartition *> toppars;
+    Nan::HandleScope scope;
+    int error_code;
 
-  if (info.Length() != 3) {
-    return Nan::ThrowError("Need to specify a params to send offsets to transaction");
-  }
-
-  int timeout_ms = Nan::To<int>(info[2]).FromJust();
-  KafkaConsumer* consumer = ObjectWrap::Unwrap<KafkaConsumer>(info[1].As<v8::Object>());
-
-  Producer* producer = ObjectWrap::Unwrap<Producer>(info.This());
-
-  if (info[0]->IsNull() || info[0]->IsUndefined()) {
-       Nan::ThrowError("Topic partition was not provided");
-    } else if (info[0]->IsArray()) {
-      toppars = Conversion::TopicPartition::FromV8Array(info[0].As<v8::Array>());
-
-    } else if (info[0]->IsObject()) {
-      RdKafka::TopicPartition * toppar = Conversion::TopicPartition::FromV8Object(info[0].As<v8::Object>());
-
-      if (toppar == NULL) {
-        Nan::ThrowError("Invalid topic partition provided");
-        return;
-      }
-      toppars.push_back(toppar);
-      delete toppar;
-    } else {
-      Nan::ThrowError("First parameter must be an object or an array");
-      return;
+    if (info.Length() != 3) {
+      return Nan::ThrowError("Need to specify a params to send offsets to transaction");
     }
+
+    int timeout_ms = Nan::To<int>(info[2]).FromJust();
+    KafkaConsumer* consumer = ObjectWrap::Unwrap<KafkaConsumer>(info[1].As<v8::Object>());
+
+    Producer* producer = ObjectWrap::Unwrap<Producer>(info.This());
+
+    if (info[0]->IsNull() || info[0]->IsUndefined()) {
+      Nan::ThrowError("Topic partitions was not provided");
+    }
+
+    if (!info[0]->IsArray()) {
+      Nan::ThrowError("Topic partitions must be an array");
+    }
+
+    std::vector<RdKafka::TopicPartition *> toppars = Conversion::TopicPartition::FromV8Array(info[0].As<v8::Array>());
 
     if (!producer->IsConnected()) {
         Nan::ThrowError("Producer is disconnected");
