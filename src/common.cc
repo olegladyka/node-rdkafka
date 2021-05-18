@@ -143,7 +143,6 @@ std::vector<std::string> v8ArrayToStringVector(v8::Local<v8::Array> parameter) {
 }
 
 namespace Conversion {
-
 namespace Topic {
 
 std::vector<std::string> ToStringVector(v8::Local<v8::Array> parameter) {
@@ -403,7 +402,7 @@ v8::Local<v8::Object> ToV8Object(RdKafka::Metadata* metadata) {
   return obj;
 }
 
-} // namespace Metadata
+}  // namespace Metadata
 
 namespace Message {
 
